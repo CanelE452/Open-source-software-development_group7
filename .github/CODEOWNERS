@@ -1,0 +1,12 @@
+# Review suggestions based on the proposal. Owners must have repository write access.
+/backend/ @eunji8319
+/backend/app/storage/ @CanelE452
+/backend/app/search/ @CanelE452
+/backend/app/summarization/ @mins-oo
+/backend/app/integrations/ollama.py @mins-oo
+/backend/app/schemas/ @eunji8319 @mins-oo @CanelE452
+/backend/tests/ @eunji8319 @CanelE452 @mins-oo
+/frontend/ @narnia0302-cloud
+/evaluation/ @CanelE452 @mins-oo
+/docs/api-contract.md @eunji8319 @narnia0302-cloud @CanelE452 @mins-oo
+/.github/ @CanelE452

@@ -1,0 +1,35 @@
+name: 기능 개발
+description: 모듈별 개발 작업과 완료 조건을 정합니다.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 목적과 사용자 동작
+      description: 어떤 입력에 어떤 결과를 제공하나요?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 담당 영역
+      options:
+        - API 및 수집
+        - DB 및 검색
+        - AI 분석 및 요약
+        - 프런트엔드
+        - 평가 및 문서
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 수정할 모듈과 API 영향
+      description: 공유 파일이나 다른 팀원 작업과 연결되는 부분을 적습니다.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 조건과 검증 방법
+      description: 구현과 검증을 구분해서 체크리스트로 적습니다.
+    validations:
+      required: true

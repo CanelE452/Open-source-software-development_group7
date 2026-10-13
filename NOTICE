@@ -1,0 +1,20 @@
+Issue Finder · 7조
+
+Issue Finder is provided under the MIT License in LICENSE.
+Dependencies retain their own licenses and copyright notices.
+
+The project uses FastAPI, Uvicorn, React, TypeScript and Vite.
+Development checks use pytest, httpx and the packages recorded in
+frontend/package-lock.json and backend/requirements*.txt.
+
+Project links:
+https://github.com/fastapi/fastapi
+https://github.com/encode/uvicorn
+https://github.com/facebook/react
+https://github.com/microsoft/TypeScript
+https://github.com/vitejs/vite
+https://github.com/pytest-dev/pytest
+https://github.com/encode/httpx
+
+Search and summarization dependencies will be added during development.
+Their library and model license notices will be included before release.
