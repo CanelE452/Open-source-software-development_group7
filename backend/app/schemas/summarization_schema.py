@@ -1,10 +1,10 @@
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, ValidationInfo , Field, model_validator
+import unicodedata
 
 def normalize_text(text: str) -> str:
-    for char in ("‑", "‐", "‒", "–", "—", "−"):
-        text = text.replace(char, "-")
-    return " ".join(text.split())
+    text = unicodedata.normalize("NFKC", text).casefold()
+    return "".join(char for char in text if char.isalnum())
 
 # 요약 근거 원문 기록
 class Evidence(BaseModel):

@@ -126,6 +126,9 @@ def write_report(issue: IssueInput, summary: IssueSummary, mismatches: list[dict
         f"- 실행 시각: {datetime.now().astimezone().isoformat(timespec='seconds')}",
         f"- Issue: [{issue.title or f'Issue #{issue.number}'}]({issue.html_url})",
         f"- 요약 상태: `{summary.status}`",
+        "```json",
+        summary.model_dump_json(ensure_ascii=False, indent=2),
+        "```",
         "",
         "## 검증 결과",
         "",
@@ -183,10 +186,8 @@ def write_report(issue: IssueInput, summary: IssueSummary, mismatches: list[dict
 def main():
     url = input("Input GitHub Issue URL: ").strip()
     issue, summary = summarize(url)
-
-    print("\n=== 요약 결과 ===")
-    print(summary.model_dump_json(ensure_ascii=False, indent=2))
-
+    print("\n요약 완료")
+    
     mismatches = collect_mismatches(summary, issue)
     report_path = write_report(issue, summary, mismatches)
     print(f"\n검증 기록을 저장했습니다: {report_path}")
