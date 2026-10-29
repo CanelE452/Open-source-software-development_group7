@@ -1,0 +1,123 @@
+{
+  "$defs": {
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A quote that can be checked against the original Issue or comment.",
+      "properties": {
+        "url": {
+          "description": "Canonical URL of the source",
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "excerpt": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "issue_body",
+            "comment"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "comment_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comment Id"
+        }
+      },
+      "required": [
+        "url",
+        "excerpt",
+        "source_type"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "SummarySection": {
+      "additionalProperties": false,
+      "description": "One summary category and its supporting source quotes.",
+      "properties": {
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "title": "SummarySection",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Unified schema for both LLM output validation and final API output.\n\n`status` and `partial_collection` have defaults so the LLM response can omit\nthem; the summarization service always overwrites them with trusted values.",
+  "properties": {
+    "problem": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "conditions": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "solution": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "discussion": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "follow_up": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "unknowns": {
+      "$ref": "#/$defs/SummarySection"
+    },
+    "status": {
+      "default": "insufficient_evidence",
+      "enum": [
+        "completed",
+        "insufficient_evidence",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "partial_collection": {
+      "default": false,
+      "title": "Partial Collection",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "problem",
+    "conditions",
+    "solution",
+    "discussion",
+    "follow_up",
+    "unknowns"
+  ],
+  "title": "IssueSummary",
+  "type": "object"
+}
