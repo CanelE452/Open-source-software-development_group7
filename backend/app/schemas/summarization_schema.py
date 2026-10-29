@@ -1,6 +1,11 @@
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, ValidationInfo , Field, model_validator
 
+def normalize_text(text: str) -> str:
+    for char in ("‑", "‐", "‒", "–", "—", "−"):
+        text = text.replace(char, "-")
+    return " ".join(text.split())
+
 # 요약 근거 원문 기록
 class Evidence(BaseModel):
     """A quote that can be checked against the original Issue or comment."""
@@ -13,7 +18,7 @@ class Evidence(BaseModel):
     comment_id: int | None = None
     
     @model_validator(mode="after")
-    def validate_original_source(self, info: ValidationInfo):
+    def validate_original_source(self, info: ValidationInfo) -> "Evidence":
         sources = (info.context or {}).get("sources")
 
         if sources is None:
@@ -27,10 +32,14 @@ class Evidence(BaseModel):
         if self.source_type != source["source_type"]:
             raise ValueError("source_type_mismatch")
 
-        if self.source_type == "comment" and self.comment_id != source["comment_id"]:
-            raise ValueError("comment_id_mismatch")
+        if self.source_type == "comment":
+            if self.comment_id != source["comment_id"]:
+                raise ValueError("comment_id_mismatch")
 
-        if self.excerpt not in source["text"]:
+        excerpt = normalize_text(self.excerpt)
+        original = normalize_text(source["text"])
+
+        if excerpt not in original:
             raise ValueError("excerpt_not_found")
 
         return self
