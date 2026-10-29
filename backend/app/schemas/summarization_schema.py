@@ -1,15 +1,5 @@
 from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field
-
-SUMMARY_SECTION_FIELDS = (
-    "problem",
-    "conditions",
-    "solution",
-    "discussion",
-    "follow_up",
-    "unknowns",
-)
 
 # 요약 근거 원문 기록
 class Evidence(BaseModel):
@@ -31,14 +21,11 @@ class SummarySection(BaseModel):
     text: str | None = None
     evidence: list[Evidence] = Field(default_factory=list)
 
-
 # 전체 요약 결과 구조
 class IssueSummary(BaseModel):
     """Unified schema for both LLM output validation and final API output.
-
     `status` and `partial_collection` have defaults so the LLM response can omit
-    them; the summarization service always overwrites them with trusted values.
-    """
+    them; the summarization service always overwrites them with trusted values."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -62,7 +49,6 @@ class IssueComment(BaseModel):
     id: int | None = None
     html_url: str | None = None
     body: str | None = None
-
 
 # 이슈 입력 구조
 class IssueInput(BaseModel):

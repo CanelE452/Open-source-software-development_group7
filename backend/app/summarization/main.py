@@ -10,27 +10,34 @@ sys.path.insert(0, str(BACKEND_DIR))
 from app.integrations.ollama import OllamaClient
 from app.schemas.summarization_schema import IssueInput, IssueSummary
 
-
 # test issue https://github.com/huggingface/transformers/issues/876
 GITHUB_API = "https://api.github.com"
-OWNER = "huggingface"
-REPO = "transformers"
-ISSUE_NUMBER = 876
 
+def input_url() -> tuple[str, str, int]:
+    url = input("Input Issue URL: ").strip()
+
+    prefix = "https://github.com/"
+    if not url.startswith(prefix):
+        raise ValueError("wrong URL format. ex: https://github.com/owner/repo/issues/123")
+    path = url[len(prefix):]
+    parts = path.split("/")
+    
+    if len(parts) != 4 or parts[2] != "issues":
+        raise ValueError("wrong URL format. ex: https://github.com/owner/repo/issues/123")
+    
+    owner, repo, _, issue_number = parts
+    if not owner or not repo or not issue_number.isdigit():
+        raise ValueError("wrong URL format. ex: https://github.com/owner/repo/issues/123")
+    
+    print(f"success parse URL: {parts}\n")
+    return owner, repo, int(issue_number)
 
 def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Issue-Finder",
-        "X-GitHub-Api-Version": "2026-03-10",
-    }
-
     issue_path = f"/repos/{owner}/{repo}/issues/{issue_number}"
     comments_path = f"{issue_path}/comments"
 
     with httpx.Client(
         base_url=GITHUB_API,
-        headers=headers,
         timeout=30.0,
     ) as client:
         issue_response = client.get(issue_path)
@@ -68,16 +75,16 @@ def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
         partial_collection=False,
     )
 
-
 def main():
     ollama = OllamaClient()
 
     try:
         # 테스트 Issue와 댓글 가져오기
-        issue = fetch_issue(OWNER, REPO, ISSUE_NUMBER)
-        print(f"가져온 Issue: {issue.title}")
-        print(f"Issue URL: {issue.html_url}")
-        print(f"댓글 수: {len(issue.comments)}")
+        url = input_url()
+        issue = fetch_issue(*url)
+        print(f"Issue: {issue.title}")
+        print(f"URL: {issue.html_url}")
+        print(f"Comments: {len(issue.comments)}")
 
         # 스키마 생성
         schema = IssueSummary.model_json_schema()
@@ -104,7 +111,6 @@ def main():
         {issue.model_dump_json(ensure_ascii=False, indent=2)}
         """
         raw_response = ollama.chat(prompt).strip()
-        print(raw_response)
 
         # JSON 파싱 및 Pydantic 스키마 검증
         result_data = json.loads(raw_response)
@@ -112,10 +118,10 @@ def main():
         result_data["partial_collection"] = issue.partial_collection
         result = IssueSummary.model_validate(result_data)
 
-        # 6. 요약 결과 출력
+        # 요약 결과 출력
         print("\n=== Issue Summary ===")
         print(result.model_dump_json(ensure_ascii=False, indent=2))
-
+        
     except httpx.HTTPStatusError as exc:
         print(
             f"GitHub API 요청 실패: HTTP {exc.response.status_code}\n"
@@ -124,7 +130,6 @@ def main():
         raise
     finally:
         ollama.close()
-
 
 if __name__ == "__main__":
     main()
