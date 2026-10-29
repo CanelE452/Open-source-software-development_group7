@@ -69,7 +69,7 @@ def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
         ],
     )
 
-def summarize(url: str) -> str:
+def summarize(url: str) -> tuple[IssueInput, IssueSummary]:
     ollama = OllamaClient()
 
     try:
