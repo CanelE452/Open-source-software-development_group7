@@ -18,8 +18,6 @@ SECTION_NAMES = (
     "unknowns",
 )
 
-# test issue https://github.com/huggingface/transformers/issues/876
-
 REASON_MESSAGES = {
     "evidence_url_not_found": "근거 URL이 입력한 Issue 본문 또는 댓글 URL과 일치하지 않음",
     "source_type_mismatch": "source_type이 실제 출처 종류와 일치하지 않음",
@@ -27,7 +25,6 @@ REASON_MESSAGES = {
     "comment_id_for_issue_body": "Issue 본문 근거에 comment_id가 지정되어 있음",
     "excerpt_not_found": "발췌문이 해당 원문에 그대로 존재하지 않음",
 }
-
 
 def build_sources(issue: IssueInput) -> dict:
     sources = {}
@@ -51,7 +48,6 @@ def build_sources(issue: IssueInput) -> dict:
 
     return sources
 
-
 def check_evidence(evidence: Evidence, sources: dict) -> str | None:
     try:
         Evidence.model_validate(
@@ -65,7 +61,6 @@ def check_evidence(evidence: Evidence, sources: dict) -> str | None:
             if reason in message:
                 return reason
         return "other_validation_error"
-
 
 def collect_mismatches(summary: IssueSummary, issue: IssueInput) -> list[dict]:
     sources = build_sources(issue)
@@ -106,13 +101,11 @@ def collect_mismatches(summary: IssueSummary, issue: IssueInput) -> list[dict]:
 
     return mismatches
 
-
 def format_block(value: str | None) -> str:
     if value is None or value == "":
         return "(없음)"
     safe_value = value.replace("````", "''' '")
     return f"````text\n{safe_value}\n````"
-
 
 def write_report(issue: IssueInput, summary: IssueSummary, mismatches: list[dict]) -> Path:
     report_dir = Path(__file__).resolve().parent / "reports"
@@ -182,7 +175,6 @@ def write_report(issue: IssueInput, summary: IssueSummary, mismatches: list[dict
     report_path.write_text("\n".join(lines), encoding="utf-8")
     return report_path
 
-
 def main():
     url = input("Input GitHub Issue URL: ").strip()
     issue, summary = summarize(url)
@@ -191,7 +183,6 @@ def main():
     mismatches = collect_mismatches(summary, issue)
     report_path = write_report(issue, summary, mismatches)
     print(f"\n검증 기록을 저장했습니다: {report_path}")
-
 
 if __name__ == "__main__":
     main()
