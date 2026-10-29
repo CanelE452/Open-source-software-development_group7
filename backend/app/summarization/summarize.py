@@ -29,7 +29,6 @@ def input_url() -> tuple[str, str, int]:
     if not owner or not repo or not issue_number.isdigit():
         raise ValueError("wrong URL format. ex: https://github.com/owner/repo/issues/123")
     
-    print(f"success parse URL: {parts}\n")
     return owner, repo, int(issue_number)
 
 def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
@@ -72,10 +71,9 @@ def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
             }
             for comment in comments_data
         ],
-        partial_collection=False,
     )
 
-def main():
+def summarize():
     ollama = OllamaClient()
 
     try:
@@ -111,17 +109,12 @@ def main():
         {issue.model_dump_json(ensure_ascii=False, indent=2)}
         """
         raw_response = ollama.chat(prompt).strip()
-
-        # JSON 파싱 및 Pydantic 스키마 검증
         result_data = json.loads(raw_response)
-        # 부분 수집 여부는 LLM 응답 대신 실제 입력 데이터 값을 사용
-        result_data["partial_collection"] = issue.partial_collection
         result = IssueSummary.model_validate(result_data)
-
-        # 요약 결과 출력
-        print("\n=== Issue Summary ===")
-        print(result.model_dump_json(ensure_ascii=False, indent=2))
+        result = result.model_dump_json(ensure_ascii=False, indent=2)
         
+        return result
+
     except httpx.HTTPStatusError as exc:
         print(
             f"GitHub API 요청 실패: HTTP {exc.response.status_code}\n"
@@ -130,6 +123,10 @@ def main():
         raise
     finally:
         ollama.close()
+
+def main():
+    result = summarize()
+    print(result)
 
 if __name__ == "__main__":
     main()
