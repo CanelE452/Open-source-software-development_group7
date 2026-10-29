@@ -1,0 +1,33 @@
+{
+  "version": "search-smoke-queries-v1",
+  "provenance": "Author-defined binary judgments for a synthetic fixture, prepared from the fabricated issue descriptions before executing retrieval. These are smoke-test expectations, not independent human judgments of real GitHub issues.",
+  "queries": [
+    {
+      "id": "exact-database-lock",
+      "problem": "sqlite database is locked",
+      "error": "sqlite3.OperationalError: database is locked",
+      "environment": "Python SQLite with concurrent writers",
+      "relevant_issues": [1],
+      "judgment_notes": "Issue 1 describes the same write-lock failure. Issue 3 is about duplicate keys rather than write contention."
+    },
+    {
+      "id": "korean-database-lock",
+      "problem": "두 프로세스가 동시에 데이터베이스에 쓰면 잠금 오류가 납니다",
+      "relevant_issues": [1],
+      "judgment_notes": "Korean paraphrase of the concurrency failure in English issue 1; exercises cross-language retrieval without forcing lexical overlap."
+    },
+    {
+      "id": "stale-search-content",
+      "problem": "After editing an issue the search still returns the old text",
+      "relevant_issues": [5],
+      "judgment_notes": "Issue 5 describes an embedding cache that fails to refresh changed text."
+    },
+    {
+      "id": "model-memory",
+      "problem": "model inference fails because GPU memory is exhausted",
+      "error": "CUDA out of memory",
+      "relevant_issues": [4],
+      "judgment_notes": "Issue 4 concerns GPU memory exhaustion during inference."
+    }
+  ]
+}

@@ -16,5 +16,14 @@ https://github.com/vitejs/vite
 https://github.com/pytest-dev/pytest
 https://github.com/encode/httpx
 
-Search and summarization dependencies will be added during development.
-Their library and model license notices will be included before release.
+Optional semantic search uses sentence-transformers (Apache-2.0):
+https://github.com/huggingface/sentence-transformers/blob/main/LICENSE
+
+The default downloaded model is
+sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (Apache-2.0),
+revision e8f8c211226b894fcb81acc59f3b34ba3efd5f42:
+https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+
+Model weights are downloaded to ignored local data; they are not distributed
+in this repository. Transitive packages retain the notices in their installed
+distributions. Summarization dependencies and their notices remain future work.

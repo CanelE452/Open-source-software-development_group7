@@ -1,0 +1,2 @@
+# Optional local Semantic/Hybrid model. BM25 does not require this file.
+sentence-transformers==5.1.2
