@@ -10,12 +10,9 @@ sys.path.insert(0, str(BACKEND_DIR))
 from app.integrations.ollama import OllamaClient
 from app.schemas.summarization_schema import IssueInput, IssueSummary
 
-# test issue https://github.com/huggingface/transformers/issues/876
 GITHUB_API = "https://api.github.com"
 
-def input_url() -> tuple[str, str, int]:
-    url = input("Input Issue URL: ").strip()
-
+def input_url(url: str) -> tuple[str, str, int]:
     prefix = "https://github.com/"
     if not url.startswith(prefix):
         raise ValueError("wrong URL format. ex: https://github.com/owner/repo/issues/123")
@@ -73,19 +70,14 @@ def fetch_issue(owner: str, repo: str, issue_number: int) -> IssueInput:
         ],
     )
 
-def summarize():
+def summarize(url: str) -> str:
     ollama = OllamaClient()
 
     try:
-        # 테스트 Issue와 댓글 가져오기
-        url = input_url()
-        issue = fetch_issue(*url)
-        print(f"Issue: {issue.title}")
-        print(f"URL: {issue.html_url}")
-        print(f"Comments: {len(issue.comments)}")
-
-        # 스키마 생성
-        schema = IssueSummary.model_json_schema()
+        url_parts = input_url(url)
+        issue = fetch_issue(*url_parts)
+        
+        schema = IssueSummary.model_json_schema()   # 스키마 생성
 
         # Issue 데이터와 스키마를 프롬프트에 입력
         prompt = f"""
@@ -100,7 +92,7 @@ def summarize():
         issue body and "comment" for a comment. Include comment_id when the source is a comment.
         If information is unavailable, use null for text and [] for evidence.
         Set status to "completed" if there is enough information to summarize, otherwise
-        set it to "insufficient_evidence". Set partial_collection to false.
+        set it to "insufficient_evidence".
 
         JSON Schema:
         {json.dumps(schema, ensure_ascii=False, indent=2)}
@@ -111,9 +103,8 @@ def summarize():
         raw_response = ollama.chat(prompt).strip()
         result_data = json.loads(raw_response)
         result = IssueSummary.model_validate(result_data)
-        result = result.model_dump_json(ensure_ascii=False, indent=2)
         
-        return result
+        return issue, result
 
     except httpx.HTTPStatusError as exc:
         print(
@@ -125,7 +116,8 @@ def summarize():
         ollama.close()
 
 def main():
-    result = summarize()
+    url = input("Input GitHub Issue URL: ").strip()
+    _, result = summarize(url)
     print(result)
 
 if __name__ == "__main__":

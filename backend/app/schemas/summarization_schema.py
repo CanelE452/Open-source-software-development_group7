@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, ValidationInfo , Field, model_validator
 
 # 요약 근거 원문 기록
 class Evidence(BaseModel):
@@ -11,6 +11,29 @@ class Evidence(BaseModel):
     excerpt: str = Field(min_length=1, max_length=500)
     source_type: Literal["issue_body", "comment"]
     comment_id: int | None = None
+    
+    @model_validator(mode="after")
+    def validate_original_source(self, info: ValidationInfo):
+        sources = (info.context or {}).get("sources")
+
+        if sources is None:
+            return self
+
+        source = sources.get(self.url)
+
+        if source is None:
+            raise ValueError("evidence_url_not_found")
+
+        if self.source_type != source["source_type"]:
+            raise ValueError("source_type_mismatch")
+
+        if self.source_type == "comment" and self.comment_id != source["comment_id"]:
+            raise ValueError("comment_id_mismatch")
+
+        if self.excerpt not in source["text"]:
+            raise ValueError("excerpt_not_found")
+
+        return self
 
 # 요약 개별 섹션 객체
 class SummarySection(BaseModel):
@@ -24,8 +47,8 @@ class SummarySection(BaseModel):
 # 전체 요약 결과 구조
 class IssueSummary(BaseModel):
     """Unified schema for both LLM output validation and final API output.
-    `status` and `partial_collection` have defaults so the LLM response can omit
-    them; the summarization service always overwrites them with trusted values."""
+    `status` have defaults so the LLM response can omit them; the summarization service
+    always overwrites them with trusted values."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -38,7 +61,6 @@ class IssueSummary(BaseModel):
     status: Literal["completed", "insufficient_evidence", "failed"] = (
         "insufficient_evidence"
     )
-    partial_collection: bool = False
 
 # 댓글 입력 구조
 class IssueComment(BaseModel):
@@ -61,4 +83,3 @@ class IssueInput(BaseModel):
     body: str | None = None
     html_url: str = ""
     comments: list[IssueComment] = Field(default_factory=list)
-    partial_collection: bool = False
