@@ -3,7 +3,7 @@ import os, httpx
 from pathlib import Path
 
 def load_env_file() -> None:
-    env_path = Path(__file__).resolve().parents[2] / ".env"
+    env_path = Path(__file__).resolve().parents[3] / ".env"
 
     if not env_path.is_file():
         raise ValueError("환경파일이 없습니다.")
@@ -64,9 +64,3 @@ class OllamaClient:
 
     def close(self) -> None:
         self.client.close()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.close()
