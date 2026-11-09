@@ -6,16 +6,33 @@ GitHub와 Ollama 클라이언트를 추가한다. API 요청과 응답 처리는
 
 ## Ollama
 
-루트에 아래와 같은 형식의 `.env` 파일을 생성해 OLLAMA_API_KEY를 입력한다.
+Ollama Cloud API를 이용하여 LLM 모델을 호출한다.
 
-```
-# GitHub API token (server only)
-GITHUB_TOKEN=
-# Ollama server and model
-OLLAMA_BASE_URL=http://127.0.0.1:11434
+현재 기본 모델은 `gpt-oss:20b`이며, `ollama.py`의 `OllamaClient`를 통해 프롬프트를 전달하고 생성된 응답을 반환한다.
+
+### 환경 설정
+
+프로젝트 루트에 `.env` 파일을 직접 생성하고 Ollama API Key를 입력한다.
+
+```dotenv
+OLLAMA_API_KEY=YOUR_API_KEY
 OLLAMA_MODEL=gpt-oss:20b
-OLLAMA_API_KEY=\
 ```
 
-기본 모델은 gpt-oss:20b로 ollama에서 제공하는 무료 클라우드 모델을 사용한다.
-라이선스 추후 추가 필요 [model license link](https://huggingface.co/openai/gpt-oss-20b/blob/main/LICENSE)
+`.env` 파일은 개인별로 생성해야 하며 실제 API Key는 GitHub에 업로드하지 않는다.
+
+### 사용 방법
+
+```python
+from app.integrations.ollama import OllamaClient
+
+ollama = OllamaClient()
+
+try:
+    response = ollama.chat("Hello World!")
+    print(response)
+finally:
+    ollama.close()
+```
+
+`chat(prompt)`는 입력된 프롬프트에 대한 모델의 응답 텍스트를 반환한다.
