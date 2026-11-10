@@ -28,4 +28,4 @@ API 라우터는 HTTP 입력·출력과 오류를 담당한다. `collection/`은
 
 ## 개발 현황
 
-상태 API와 기본 화면을 구성했다. 수집·검색·요약은 [개발 순서](roadmap.md)에 따라 진행한다. API 형식은 [API 문서](api-contract.md)에서 맞춘다. Ollama 요약 모델은 선정 예정이다.
+상태 API와 기본 화면, SQLite 저장·검색 CLI를 구성했다. 실행 방법은 [저장·검색 안내](sqlite-search.md), 수집·검색 HTTP API와 요약 연동은 [개발 순서](roadmap.md)를 따른다. API 형식은 [API 문서](api-contract.md)에서 맞춘다. Ollama 요약 모델은 선정 예정이다.
