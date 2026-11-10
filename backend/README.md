@@ -2,7 +2,7 @@
 
 Python 3.12 이상을 사용한다. FastAPI 앱의 시작점은 `backend.app.main:app`이며 모든 명령은 **저장소 루트**에서 실행한다.
 
-현재 동작하는 API는 `GET /api/health`뿐이다. 이 응답은 API 프로세스 상태를 나타내며 GitHub·DB·모델의 연결 상태는 확인하지 않는다. 검색·수집·저장·요약은 팀원별로 다음 모듈에 구현한다.
+현재 API는 `GET /api/health`이며 프로세스 상태만 확인한다. SQLite 저장·검색은 [CLI](../docs/sqlite-search.md)로 실행한다. 수집·검색 HTTP API와 요약 연결은 개발 예정이다.
 
 ```text
 backend/
@@ -59,6 +59,6 @@ curl http://127.0.0.1:8000/api/health
 
 ## 의존성 기준
 
-API 실행에는 FastAPI와 Uvicorn만 직접 선언한다. `requirements-dev.txt`는 테스트에 필요한 pytest와 HTTPX를 추가한다. 검색용 ML 패키지는 검색 방식과 모델이 결정된 뒤 별도로 관리한다.
+API 실행에는 FastAPI와 Uvicorn만 직접 선언한다. `requirements-dev.txt`는 테스트에 필요한 pytest와 HTTPX를 추가한다. Semantic·Hybrid용 선택 의존성은 `requirements-search.txt`에서 관리한다.
 
 패키지 버전은 `requirements.txt`와 `requirements-dev.txt`에서 관리한다.

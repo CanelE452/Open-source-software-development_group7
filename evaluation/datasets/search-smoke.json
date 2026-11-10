@@ -1,0 +1,82 @@
+{
+  "repository": "example/issue-search-fixture",
+  "collected_at": "2026-10-29T00:00:00+00:00",
+  "collection_scope": {
+    "source": "authored-synthetic",
+    "fixture_version": "search-smoke-v1",
+    "description": "Eight fabricated issues for an executable smoke test; no GitHub collection occurred. URLs deliberately use the reserved example.invalid domain."
+  },
+  "partial_collection": false,
+  "issues": [
+    {
+      "number": 1,
+      "title": "SQLite database is locked during concurrent writes",
+      "body": "Two workers write to the same SQLite database at once. The second writer raises sqlite3.OperationalError: database is locked. Serialize write transactions or retry after the first writer commits.",
+      "url": "https://example.invalid/issue-search-fixture/issues/1",
+      "state": "closed",
+      "comments": [
+        {
+          "id": 101,
+          "body": "A long transaction held the write lock. Short transactions and a busy timeout resolved the contention in this example.",
+          "url": "https://example.invalid/issue-search-fixture/issues/1#comment-101"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "CSV import fails with UnicodeDecodeError on Korean text",
+      "body": "A CSV saved in CP949 cannot be decoded as UTF-8. The import stops with UnicodeDecodeError. Read the file with its actual encoding and export normalized UTF-8 text.",
+      "url": "https://example.invalid/issue-search-fixture/issues/2",
+      "state": "closed"
+    },
+    {
+      "number": 3,
+      "title": "Repeated insert violates the unique issue number constraint",
+      "body": "Importing the same issue twice into one snapshot raises a UNIQUE constraint failed error. Detect duplicate issue numbers before committing the snapshot transaction.",
+      "url": "https://example.invalid/issue-search-fixture/issues/3",
+      "state": "open"
+    },
+    {
+      "number": 4,
+      "title": "CUDA out of memory while running the model",
+      "body": "Neural model inference exhausts GPU memory and raises CUDA out of memory. Lower the batch size, release unused tensors, or run the model on the CPU when GPU memory is insufficient.",
+      "url": "https://example.invalid/issue-search-fixture/issues/4",
+      "state": "closed"
+    },
+    {
+      "number": 5,
+      "title": "Search uses stale embeddings after an issue is edited",
+      "body": "An issue body is changed but semantic search still retrieves results based on its previous contents. The embedding cache key contains only the issue number. Include the content hash and model revision in the key so modified text is re-embedded.",
+      "url": "https://example.invalid/issue-search-fixture/issues/5",
+      "state": "closed",
+      "comments": [
+        {
+          "id": 105,
+          "body": "Identical text may reuse vectors across snapshots; changed content must invalidate the old embedding cache entry.",
+          "url": "https://example.invalid/issue-search-fixture/issues/5#comment-105"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "title": "Remote API request times out on a slow connection",
+      "body": "The HTTP client stops waiting before the remote server responds. Set a finite request timeout and retry transient connection errors with backoff. Preserve the last complete snapshot when collection fails.",
+      "url": "https://example.invalid/issue-search-fixture/issues/6",
+      "state": "open"
+    },
+    {
+      "number": 7,
+      "title": "API authentication returns 401 Bad credentials",
+      "body": "An expired access token causes HTTP 401 Bad credentials. Replace the token through local environment settings and verify its permissions. Never store the token in source code or logs.",
+      "url": "https://example.invalid/issue-search-fixture/issues/7",
+      "state": "closed"
+    },
+    {
+      "number": 8,
+      "title": "Result selection raises IndexError for an empty list",
+      "body": "The interface reads results[0] even when no issues match the query. An empty list raises IndexError. Show the no-results state and allow the user to revise the problem description.",
+      "url": "https://example.invalid/issue-search-fixture/issues/8",
+      "state": "open"
+    }
+  ]
+}

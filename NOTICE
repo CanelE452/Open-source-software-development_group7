@@ -16,5 +16,29 @@ https://github.com/vitejs/vite
 https://github.com/pytest-dev/pytest
 https://github.com/encode/httpx
 
-Search and summarization dependencies will be added during development.
-Their library and model license notices will be included before release.
+
+Third-Party Models
+------------------
+
+This project uses the following third-party language model:
+
+- Model: gpt-oss-20b
+- Provider: OpenAI
+- Runtime: Ollama Cloud
+- License: Apache License 2.0
+
+Model source:
+https://huggingface.co/openai/gpt-oss-20b
+
+Ollama model page:
+https://ollama.com/library/gpt-oss
+
+License:
+https://www.apache.org/licenses/LICENSE-2.0
+
+Usage Policy:
+https://huggingface.co/openai/gpt-oss-20b/blob/main/USAGE_POLICY
+
+The model is accessed through the Ollama Cloud API.
+The model weights are not included or redistributed
+as part of this repository.
