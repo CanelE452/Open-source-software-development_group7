@@ -16,9 +16,6 @@ https://github.com/vitejs/vite
 https://github.com/pytest-dev/pytest
 https://github.com/encode/httpx
 
-Search and summarization dependencies will be added during development.
-Their library and model license notices will be included before release.
-
 
 Third-Party Models
 ------------------
