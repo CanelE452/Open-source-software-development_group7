@@ -24,22 +24,6 @@ git config --local user.email "본인 GitHub 이메일"
 
 작업 내용과 담당자는 Issue와 PR에 기록합니다. 이메일 설정에 관한 자세한 내용은 [GitHub 커밋 이메일 안내](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address)를 참고하세요.
 
-## 첫 업로드 담당자
-
-초기 구조를 처음 업로드할 때 사용하는 절차입니다. 로컬 기본 브랜치가 `master`인 경우 `main`으로 변경합니다. 이미 `main`이면 브랜치 변경 명령을 생략합니다. 변경 파일을 확인한 뒤 필요한 경로를 지정해 스테이징합니다.
-
-```bash
-git status --short
-git branch -m main
-git add README.md CONTRIBUTING.md CHANGELOG.md LICENSE NOTICE .gitignore .gitattributes .editorconfig .python-version .env.example pytest.ini
-git add backend frontend docs evaluation data .github
-git diff --cached --stat
-git diff --cached
-git commit -m "chore: initialize team project structure"
-git log -1 --format=fuller
-git push -u origin main
-```
-
 커밋 전에 `git diff --cached`로 변경 내용을 검토합니다. `.env`, 로컬 DB, 가상환경, 모델 파일, `node_modules` 등은 `.gitignore`로 관리하며 저장소에 포함하지 않습니다.
 
 ## 기능 개발 순서

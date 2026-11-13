@@ -2,7 +2,7 @@
 
 모든 경로에 `/api` 접두사가 붙는다. 경로나 필드를 바꾸면 이 문서와 `frontend/src/types/`도
 함께 수정한다. 검색 점수와 요약 생성 로직은 각 담당 모듈에서 구현하며, 아래는 API 입·출력
-형식이다.
+형식이다. 검색·요약 API는 모듈을 연결하기 전에는 503을 돌려주며, 현재 기본 앱에는 두 모듈이 연결되어 있지 않다.
 
 ## 구현: 서버 상태
 
@@ -172,6 +172,6 @@
 
 ## 모듈 연결점
 
-API는 검색·요약을 직접 구현하지 않고 연결점(포트, `backend/app/api/backends.py`)에만
-의존한다. 담당 모듈이 `SearchBackend`·`SummaryBackend`를 구현해 `app.state`에 주입하면
-해당 API가 동작한다. 그 전에는 503을 돌려주므로 수집·상세 API는 독립적으로 쓸 수 있다.
+API는 검색·요약을 직접 구현하지 않고 연결점(포트, `backend/app/api/backends.py`)에만 의존한다. 담당 모듈이 `SearchBackend`·`SummaryBackend`를 구현해 `app.state`에 주입하면 해당 API가 동작한다. 현재는 주입하지 않아 두 API 모두 503을 돌려주며, 수집·상세 API는 독립적으로 쓸 수 있다.
+
+`SearchEngine`은 이 연결점과 시그니처가 달라 연결 어댑터가 필요하고, 수집 모듈의 `snapshot_id`와 저장 모듈의 스냅샷 ID도 아직 연결하지 않았다.

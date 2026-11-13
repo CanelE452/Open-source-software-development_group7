@@ -19,4 +19,10 @@
 - BM25·Semantic·Hybrid 검색과 JSON import·검색 CLI.
 - 검색 비교 도구, 저장·검색·CLI 테스트와 실행 문서.
 
-GitHub 수집·검색 HTTP 라우터·AI 요약·검색 대시보드 연결은 아직 구현하지 않았으며 릴리스는 없습니다.
+- Ollama Cloud 클라이언트(`integrations/ollama.py`), 요약 스키마와 Issue URL 입력 요약 스크립트(`summarization/`).
+- 요약 근거 검증 테스트와 검증 보고서(`backend/tests/reports/`).
+
+- API 통신 모듈, 검색 입력·분석 상태 확인·결과 목록 화면, Issue 상세·근거 기반 요약 대시보드.
+- 검색·요약 API 503 응답에 대비한 Mock 데이터.
+
+검색·요약 모듈의 HTTP API 연결과 실제 저장소 대상 평가는 아직 구현하지 않았으며 릴리스는 없습니다.

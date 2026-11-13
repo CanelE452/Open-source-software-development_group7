@@ -28,4 +28,12 @@ API 라우터는 HTTP 입력·출력과 오류를 담당한다. `collection/`은
 
 ## 개발 현황
 
-상태 API와 기본 화면, SQLite 저장·검색 CLI를 구성했다. 실행 방법은 [저장·검색 안내](sqlite-search.md), 수집·검색 HTTP API와 요약 연동은 [개발 순서](roadmap.md)를 따른다. API 형식은 [API 문서](api-contract.md)에서 맞춘다. Ollama 요약 모델은 선정 예정이다.
+- 상태·저장소 분석·검색·Issue 상세·요약 API, SQLite 저장·검색 CLI, Ollama 요약 스크립트, 검색·상세 화면을 구성했다.
+
+- 수집(`collection/`)과 Issue 상세 API는 GitHub와 연동해 동작한다.
+
+- 검색(`search/`)과 요약(`summarization/`)은 `api/backends.py`의 연결점에 아직 주입하지 않아 `POST /api/search`와 요약 API는 503을 반환하고, 화면은 이때 Mock 데이터를 보여준다.
+
+- 분석 작업 상태는 메모리에만 있고 수집 결과는 아직 `storage/`에 저장하지 않는다.
+
+- 실행 방법은 [저장·검색 안내](sqlite-search.md), 남은 연결 작업은 [개발 순서](roadmap.md)를 따른다. API 형식은 [API 문서](api-contract.md)에서 맞춘다. 요약 모델은 Ollama Cloud의 `gpt-oss:20b`를 사용한다.
