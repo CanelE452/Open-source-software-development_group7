@@ -56,7 +56,7 @@ Semantic·Hybrid를 사용하려면 선택 의존성을 설치한다.
 }
 ```
 
-API에서는 `SearchEngine.search(repository, problem, error=..., environment=..., method=..., top_k=..., snapshot_id=...)`를 호출한다. `to_dict()`는 검색 결과와 스냅샷 메타데이터, 모델 정보를 반환한다. 입력 조건은 [검색 모듈](../backend/app/search/README.md), HTTP 형식은 [API 계약](api-contract.md)을 따른다. 현재 HTTP API는 `GET /api/health`만 구현했다.
+API에서는 `SearchEngine.search(repository, problem, error=..., environment=..., method=..., top_k=..., snapshot_id=...)`를 호출한다. `to_dict()`는 검색 결과와 스냅샷 메타데이터, 모델 정보를 반환한다. 입력 조건은 [검색 모듈](../backend/app/search/README.md), HTTP 형식은 [API 계약](api-contract.md)을 따른다. HTTP 라우터(`POST /api/search`)는 `SearchBackend` 연결점을 통해 호출하며, `SearchEngine`을 이 연결점에 맞추는 어댑터는 아직 없어 기본 상태에서는 503을 반환한다.
 
 ## 테스트와 평가
 

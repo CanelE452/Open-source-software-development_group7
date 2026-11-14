@@ -1,6 +1,6 @@
 # 검색·요약 평가
 
-동일한 SQLite 스냅샷과 질의셋으로 BM25·Semantic·Hybrid 검색을 비교한다. 요약 평가는 별도 구현 예정이다.
+동일한 SQLite 스냅샷과 질의셋으로 BM25·Semantic·Hybrid 검색을 비교한다. 요약 평가는 별도 구현 예정이며, 요약 근거 일치 여부는 `backend/tests/test_summary_validation.py`로 수동 검증하고 보고서는 `backend/tests/reports/`에 남긴다.
 
 - `datasets/`: 팀이 판정한 작은 질의·관련 Issue 목록과 요약 점검 사례. GitHub 토큰이나 개인 로그를 포함하지 않는다.
 - `results/`: 실행 결과. Git에서 제외하며 공유할 때 재현 설정과 버전을 함께 제공한다.

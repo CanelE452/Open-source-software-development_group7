@@ -2,7 +2,9 @@
 
 Python 3.12 이상을 사용한다. FastAPI 앱의 시작점은 `backend.app.main:app`이며 모든 명령은 **저장소 루트**에서 실행한다.
 
-현재 API는 `GET /api/health`이며 프로세스 상태만 확인한다. SQLite 저장·검색은 [CLI](../docs/sqlite-search.md)로 실행한다. 수집·검색 HTTP API와 요약 연결은 개발 예정이다.
+현재 API는 `GET /api/health`, 저장소 분석·작업 상태, 검색, Issue 상세, 요약이다. 수집·상세 API는 바로 동작하고, 검색·요약은 연결점(`app/api/backends.py`)에 모듈을 주입하기 전까지 503(`search_unavailable`·`summary_unavailable`)을 반환한다.
+
+SQLite 저장·검색은 [CLI](../docs/sqlite-search.md), 요약은 [요약 스크립트](app/summarization/README.md)로 실행한다.
 
 ```text
 backend/
@@ -55,10 +57,10 @@ curl http://127.0.0.1:8000/api/health
 .venv/bin/python -m pytest backend/tests
 ```
 
-상태 응답은 `{"status":"ok","service":"issue-finder"}`이며 API 문서는 <http://127.0.0.1:8000/docs>에서 확인한다. 서버는 `Ctrl+C`로 종료한다. 초기 상태 확인에는 GitHub 토큰과 Ollama 설치가 필요하지 않다.
+상태 응답은 `{"status":"ok","service":"issue-finder"}`이며 API 문서는 <http://127.0.0.1:8000/docs>에서 확인한다. 서버는 `Ctrl+C`로 종료한다.
 
 ## 의존성 기준
 
-API 실행에는 FastAPI와 Uvicorn만 직접 선언한다. `requirements-dev.txt`는 테스트에 필요한 pytest와 HTTPX를 추가한다. Semantic·Hybrid용 선택 의존성은 `requirements-search.txt`에서 관리한다.
+API 실행에는 FastAPI, Uvicorn, HTTPX(GitHub·Ollama 호출)를 직접 선언한다. `requirements-dev.txt`는 테스트에 필요한 pytest를 추가한다. Semantic·Hybrid용 선택 의존성은 `requirements-search.txt`에서 관리한다.
 
 패키지 버전은 `requirements.txt`와 `requirements-dev.txt`에서 관리한다.

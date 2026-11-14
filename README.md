@@ -2,7 +2,9 @@
 
 공개 GitHub 저장소에서 문제 상황과 관련된 Issue를 검색하고, 선택한 Issue의 본문·댓글을 근거와 함께 요약하는 팀 프로젝트입니다.
 
-현재 상태 확인 API와 기본 화면, SQLite 저장·검색 CLI를 구성했습니다. 실행 방법은 [저장·검색 안내](docs/sqlite-search.md)를 참고해주세요. GitHub 수집·검색 API·요약·화면 연동은 개발 예정입니다.
+현재 상태 확인·저장소 분석·검색·Issue 상세·요약 API와 검색·상세 화면, SQLite 저장·검색 CLI, Ollama 요약 스크립트를 구성했습니다. 수집(`collection/`)과 Issue 상세 API는 GitHub와 연동해 동작하지만, 검색(`search/`)·요약(`summarization/`) 모듈은 아직 HTTP API에 연결하지 않아 `POST /api/search`와 요약 API는 503을 반환하고 화면은 이때 Mock 데이터를 표시합니다.
+
+실행 방법은 [저장·검색 안내](docs/sqlite-search.md)를 참고해주세요.
 
 ## 저장소 구조
 
@@ -36,11 +38,11 @@ docs/                 구조·API 계약·작업 계획·회의
 
 - Python 3.12, Node.js 20.19+ 또는 22.12+.
 - FastAPI, React 19, TypeScript 5.7, Vite 6.
-- 현재는 GitHub 토큰·Ollama·검색 모델 없이 실행할 수 있습니다.
+- 백엔드와 화면은 GitHub 토큰·Ollama·검색 모델 없이 실행할 수 있습니다. 요약 생성에는 Ollama Cloud API Key(`OLLAMA_API_KEY`), Semantic·Hybrid 검색에는 `backend/requirements-search.txt`가 필요합니다.
 
 ### Windows PowerShell
 
-프로젝트 루트에서 실행합니다. 먼저 Python 버전을 확인하세요.
+프로젝트 루트에서 실행합니다.
 
 ```powershell
 python --version
@@ -93,7 +95,7 @@ Ubuntu/macOS에서는 Python 경로를 `.venv/bin/python`, `npm.cmd`를 `npm`으
 
 ## 비밀 정보와 실행 데이터
 
-서버 연동에 사용할 환경변수는 `.env.example`에 정리했습니다. 저장소 루트의 `.env`는 백엔드 실행 시 자동으로 읽습니다(`backend/app/core/config.py`). GitHub 토큰은 서버에서만 사용하며 응답으로 노출하지 않습니다. 공개 저장소는 토큰 없이도 수집할 수 있고, 토큰이 있으면 호출 제한이 완화됩니다. `.env`, 가상환경, DB, 모델, 수집 데이터, 평가 결과는 Git에서 제외합니다.
+서버 연동에 사용할 환경변수는 `.env.example`에 정리했습니다(GitHub 토큰, Ollama API Key·모델). 저장소 루트의 `.env`는 백엔드 실행 시 자동으로 읽습니다(`backend/app/core/config.py`, `backend/app/integrations/ollama.py`). GitHub 토큰과 Ollama API Key는 서버에서만 사용하며 응답으로 노출하지 않습니다. 공개 저장소는 토큰 없이도 수집할 수 있고, 토큰이 있으면 호출 제한이 완화됩니다. `.env`, 가상환경, DB, 모델, 수집 데이터, 평가 결과는 Git에서 제외합니다.
 
 ## 라이선스
 
