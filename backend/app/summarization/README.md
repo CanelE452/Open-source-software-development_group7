@@ -40,6 +40,10 @@ Issue 본문과 댓글을 분석하고 요약하는 코드를 추가한다. 프�
 - `insufficient_evidence`: 요약에 필요한 정보나 근거 부족
 - `failed`: 요약 처리 실패
 
+## 연결 상태
+
+현재는 Issue URL을 입력하는 스크립트로 실행하며, HTTP API의 `SummaryBackend`에는 아직 연결하지 않았다. 요약 생성에는 `OLLAMA_API_KEY`가 필요하다. 스크립트는 GitHub 토큰 없이 Issue를 조회하므로 호출 제한에 걸릴 수 있다.
+
 ## 실행 방법
 
 프로젝트 루트에서 다음 명령어를 실행한다.
