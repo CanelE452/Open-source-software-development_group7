@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from backend.app.api.backends import BackendUnavailable
+from backend.app.api.backends import BackendUnavailable, SearchBackendError
 from backend.app.collection.repository import InvalidRepository
 from backend.app.integrations.github import (
     GitHubError,
@@ -74,6 +74,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         InvalidRepository,
         GitHubError,  # RepositoryNotFound/RateLimited/GitHubUnavailable 포함
         BackendUnavailable,
+        SearchBackendError,
     )
 
     for exc_type in domain_errors:

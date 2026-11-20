@@ -1,6 +1,8 @@
 import httpx
+import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.api.backends import UnavailableSearchBackend
 from backend.app.main import create_app
 from backend.app.schemas.search import SearchResponse, SearchResultItem
 from backend.app.schemas.summary import SummaryResponse, SummaryStatus
@@ -85,9 +87,12 @@ def build_app(handler, *, settings=None, search=None, summary=None):
 # --- analyze / job status ---------------------------------------------------
 
 
-def test_analyze_then_job_status_completes():
+@pytest.mark.parametrize("backend_is_available", [False, True])
+def test_analyze_without_indexing_reports_failure(backend_is_available):
     handler = _issue_pages({1: [issue(1), pull_request(2)], 2: [issue(3)]})
-    app = build_app(handler, settings=make_settings(per_page=2, max_issues=10))
+    search = UnavailableSearchBackend()
+    search.available = backend_is_available
+    app = build_app(handler, search=search)
 
     with TestClient(app) as client:
         start = client.post("/api/repositories/analyze", json={"repository": "o/r"})
@@ -98,7 +103,8 @@ def test_analyze_then_job_status_completes():
 
     assert status.status_code == 200
     body = status.json()
-    assert body["state"] == "completed"
+    assert body["state"] == "failed"
+    assert body["error"]["code"] == "search_unavailable"
     assert body["progress"]["collected_issues"] == 2
     assert body["progress"]["indexed"] is False
     assert body["collection"]["partial_collection"] is False
@@ -227,7 +233,7 @@ def test_search_invalid_repository_is_400():
 
 
 def test_search_without_backend_returns_503():
-    app = build_app(_dummy_handler)
+    app = build_app(_dummy_handler, search=UnavailableSearchBackend())
     with TestClient(app) as client:
         response = client.post(
             "/api/search", json={"repository": "o/r", "problem": "로그인 실패"}

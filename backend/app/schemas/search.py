@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from backend.app.schemas.collection import CollectionScope
 
@@ -28,6 +28,13 @@ class SearchRequest(BaseModel):
     environment: str | None = Field(default=None, description="선택적 버전·환경")
     method: SearchMethod = SearchMethod.hybrid
     top_k: int = Field(default=5, ge=1, le=20)
+
+    @field_validator("problem")
+    @classmethod
+    def require_problem_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("problem must contain text")
+        return value
 
 
 class SearchResultItem(BaseModel):

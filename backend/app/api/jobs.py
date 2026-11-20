@@ -1,6 +1,6 @@
 """분석 작업(수집·인덱싱) 상태 관리.
 
-작업 상태는 메모리에 둔다. 영속 저장은 저장 담당(`storage/`)과 연결할 때 교체한다.
+작업 상태는 메모리에 두고 수집한 Issue는 검색 백엔드에 넘긴다.
 """
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ def run_analysis(
     max_issues: int | None = None,
     settings: Settings | None = None,
 ) -> None:
-    """수집하고, 검색 모듈이 있으면 색인한 뒤 작업 상태를 갱신한다.
+    """수집하고 색인한 뒤 작업 상태를 갱신한다.
 
     백그라운드에서 실행된다. 예외는 작업을 `failed`로 기록하고 삼킨다(요청은 이미 응답됨).
     """
@@ -86,19 +86,15 @@ def run_analysis(
         job.collection = result.metadata
         job.progress.collected_issues = len(result.issues)
 
-        # 검색 모듈이 연결돼 있으면 색인한다. 아니면 수집만 하고 넘어간다.
-        if getattr(search_backend, "available", False):
-            job.state = JobState.indexing
-            job_store.save(job)
-            try:
-                search_backend.index(job.repository, result.issues, result.metadata)
-                job.progress.indexed = True
-            except BackendUnavailable as exc:
-                job.collection.notes.append(f"색인을 건너뛰었습니다: {exc}")
-        else:
-            job.collection.notes.append(
-                "검색 모듈 미연결로 색인을 건너뛰었습니다."
-            )
+        if not search_backend.available:
+            raise BackendUnavailable("search", "검색 백엔드가 연결되어 있지 않습니다.")
+
+        job.state = JobState.indexing
+        job_store.save(job)
+        snapshot_id = search_backend.index(job.repository, result.issues, result.metadata)
+        if snapshot_id is not None:
+            result.metadata.snapshot_id = snapshot_id
+        job.progress.indexed = True
 
         job.state = (
             JobState.partial if result.metadata.partial_collection else JobState.completed
