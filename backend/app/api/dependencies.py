@@ -12,10 +12,10 @@ from fastapi import FastAPI, Request
 from backend.app.api.backends import (
     SearchBackend,
     SummaryBackend,
-    UnavailableSearchBackend,
     UnavailableSummaryBackend,
 )
 from backend.app.api.jobs import GitHubClientFactory, JobStore
+from backend.app.api.sqlite_search import SQLiteSearchBackend
 from backend.app.core.config import Settings, get_settings
 from backend.app.integrations.github import GitHubClient
 
@@ -46,7 +46,7 @@ def init_app_state(app: FastAPI, settings: Settings | None = None) -> None:
     if not hasattr(state, "github_client_factory"):
         state.github_client_factory = default_client_factory(state.settings)
     if not hasattr(state, "search_backend"):
-        state.search_backend = UnavailableSearchBackend()
+        state.search_backend = SQLiteSearchBackend(state.settings.database_path)
     if not hasattr(state, "summary_backend"):
         state.summary_backend = UnavailableSummaryBackend()
 

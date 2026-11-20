@@ -15,6 +15,7 @@ from pathlib import Path
 # backend/app/core/config.py -> parents[3] == 저장소 루트
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ENV_PATH = REPO_ROOT / ".env"
+DEFAULT_DATABASE_PATH = REPO_ROOT / "data" / "database" / "issues.sqlite3"
 
 
 def load_env_file(path: Path = ENV_PATH) -> None:
@@ -75,6 +76,7 @@ class Settings:
     max_comments: int
     ollama_base_url: str
     ollama_model: str | None
+    database_path: Path = DEFAULT_DATABASE_PATH
 
     def github_headers(self) -> dict[str, str]:
         """GitHub REST API 요청 공통 헤더. 토큰이 있으면 인증을 추가한다."""
@@ -106,4 +108,5 @@ def get_settings() -> Settings:
         max_comments=_int_env("COLLECTION_MAX_COMMENTS", 300),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
         ollama_model=os.getenv("OLLAMA_MODEL") or None,
+        database_path=Path(os.getenv("ISSUE_FINDER_DB_PATH") or DEFAULT_DATABASE_PATH),
     )

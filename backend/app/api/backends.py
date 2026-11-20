@@ -1,10 +1,4 @@
-"""검색·요약 모듈과 API를 잇는 연결점(포트).
-
-검색(`search/`, 김민재)과 요약(`summarization/`, 김민수)은 별도 브랜치에서 개발 중이다.
-API는 아래 프로토콜에만 의존하고, 각 담당이 구현을 주입(`app.state`)한다. 아직 연결되지
-않았으면 `Unavailable*Backend`가 `BackendUnavailable`을 던지고, 라우터는 이를 503으로
-변환한다. 이렇게 하면 수집 API는 지금 동작하고, 검색·요약은 합류 시 교체만 하면 된다.
-"""
+"""API가 `app.state`를 통해 사용하는 검색·요약 백엔드 계약."""
 
 from __future__ import annotations
 
@@ -17,12 +11,16 @@ from backend.app.schemas.summary import SummaryResponse
 
 
 class BackendUnavailable(Exception):
-    """아직 연결되지 않은 모듈을 호출했을 때."""
+    """요청한 백엔드를 실행할 수 없을 때."""
 
     def __init__(self, backend: str, message: str) -> None:
         super().__init__(message)
         self.backend = backend
         self.message = message
+
+
+class SearchBackendError(Exception):
+    """저장된 스냅샷을 읽거나 검색하는 도중 실패했다."""
 
 
 @runtime_checkable
@@ -36,8 +34,8 @@ class SearchBackend(Protocol):
         repository: str,
         issues: list[CollectedIssue],
         metadata: CollectionMetadata,
-    ) -> None:
-        """수집한 스냅샷을 색인한다."""
+    ) -> str | None:
+        """수집한 스냅샷을 색인하고 저장된 ID가 있으면 반환한다."""
 
     def search(self, request: SearchRequest) -> SearchResponse:
         """문제 설명으로 관련 Issue 후보를 찾는다."""
@@ -54,7 +52,7 @@ class SummaryBackend(Protocol):
 
 
 class UnavailableSearchBackend:
-    """검색 모듈 합류 전 기본값."""
+    """검색 백엔드 미연결 상태를 나타낸다."""
 
     available = False
     _message = "검색 모듈이 아직 연결되지 않았습니다 (search/, 김민재 담당)."

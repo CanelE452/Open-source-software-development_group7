@@ -6,11 +6,9 @@
 
 from __future__ import annotations
 
-import re
 from urllib.parse import urlparse
 
-# GitHub 사용자/저장소 이름 규칙에 맞춘 느슨한 검증.
-_NAME = re.compile(r"^[A-Za-z0-9._-]+$")
+from backend.app.storage import normalize_repository
 
 
 class InvalidRepository(ValueError):
@@ -36,9 +34,13 @@ def parse_repository(value: str) -> tuple[str, str]:
     repo: str
 
     if "://" in text or text.lower().startswith("github.com/"):
-        parsed = urlparse(text if "://" in text else f"https://{text}")
-        host = (parsed.netloc or "").lower()
-        if host and host not in ("github.com", "www.github.com"):
+        try:
+            parsed = urlparse(text if "://" in text else f"https://{text}")
+        except ValueError as exc:
+            raise InvalidRepository("GitHub 저장소 주소 형식이 올바르지 않습니다.") from exc
+        if parsed.scheme not in ("http", "https") or parsed.netloc.lower() not in (
+            "github.com", "www.github.com",
+        ):
             raise InvalidRepository("github.com 공개 저장소 주소만 지원합니다.")
         parts = [p for p in parsed.path.split("/") if p]
         if len(parts) < 2:
@@ -53,8 +55,10 @@ def parse_repository(value: str) -> tuple[str, str]:
     if repo.endswith(".git"):
         repo = repo[: -len(".git")]
 
-    if not _NAME.match(owner) or not _NAME.match(repo):
-        raise InvalidRepository("owner/repo에 허용되지 않는 문자가 있습니다.")
+    try:
+        normalize_repository(f"{owner}/{repo}")
+    except ValueError as exc:
+        raise InvalidRepository("owner/repo에 허용되지 않는 문자가 있습니다.") from exc
 
     return owner, repo
 
