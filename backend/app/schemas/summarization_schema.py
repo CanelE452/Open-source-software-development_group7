@@ -32,6 +32,9 @@ class Evidence(BaseModel):
         if self.source_type != source["source_type"]:
             raise ValueError("source_type_mismatch")
 
+        if self.source_type == "issue_body" and self.comment_id is not None:
+            raise ValueError("comment_id_for_issue_body")
+
         if self.source_type == "comment":
             if self.comment_id != source["comment_id"]:
                 raise ValueError("comment_id_mismatch")
