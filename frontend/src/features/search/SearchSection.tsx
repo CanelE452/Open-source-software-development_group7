@@ -17,6 +17,12 @@ interface SearchSectionProps {
   onSelectIssue: (issue: SearchIssueItem, repository?: string) => void;
 }
 
+function normalizeRepoPath(input: string): string {
+  const trimmed = input.trim().replace(/\/+$/, '');
+  const match = trimmed.match(/github\.com\/([^/]+\/[^/]+)/i);
+  return match ? match[1].replace(/\.git$/, '') : trimmed;
+}
+
 export const SearchSection: React.FC<SearchSectionProps> = ({
   defaultRepository = 'huggingface/transformers',
   onRepositoryChange,
@@ -31,6 +37,10 @@ export const SearchSection: React.FC<SearchSectionProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+
+  // Issue 번호 직접 조회용 상태
+  const [directIssueInput, setDirectIssueInput] = useState<string>('');
+  const [directIssueError, setDirectIssueError] = useState<string | null>(null);
 
   useEffect(() => {
     setActiveRepository(defaultRepository);
@@ -118,6 +128,35 @@ export const SearchSection: React.FC<SearchSectionProps> = ({
     }
   };
 
+  // Issue 번호로 상세 & AI 요약 화면 바로 이동
+  const handleDirectIssueSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const issueNumber = Number(directIssueInput.trim());
+
+    if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
+      setDirectIssueError('1 이상의 올바른 Issue 번호를 입력하세요.');
+      return;
+    }
+
+    const normalizedRepo = normalizeRepoPath(activeRepository);
+    if (!normalizedRepo.includes('/')) {
+      setDirectIssueError('상단에서 유효한 저장소(owner/repo)를 먼저 설정해 주세요.');
+      return;
+    }
+
+    setDirectIssueError(null);
+    const directItem: SearchIssueItem = {
+      number: issueNumber,
+      title: `Issue #${issueNumber}`,
+      state: 'open',
+      html_url: `https://github.com/${normalizedRepo}/issues/${issueNumber}`,
+      score: 0,
+      score_type: 'hybrid',
+    };
+
+    onSelectIssue(directItem, normalizedRepo);
+  };
+
   return (
     <section>
       <SearchForm
@@ -146,6 +185,59 @@ export const SearchSection: React.FC<SearchSectionProps> = ({
       )}
 
       <JobProgress jobStatus={jobStatus} />
+
+      {/* Issue 번호로 직접 상세 & AI 요약 조회 */}
+      <div
+        style={{
+          border: '1px solid #e2e8f0',
+          backgroundColor: '#f8fafc',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+        }}
+      >
+        <form
+          onSubmit={handleDirectIssueSubmit}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}
+        >
+          <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>
+            Issue 번호로 바로 보기
+          </span>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>
+            (대상: <code>{normalizeRepoPath(activeRepository)}</code>)
+          </span>
+          <input
+            type="number"
+            min={1}
+            placeholder="예: 1"
+            value={directIssueInput}
+            onChange={(e) => {
+              setDirectIssueInput(e.target.value);
+              if (directIssueError) setDirectIssueError(null);
+            }}
+            style={{ width: '110px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+          />
+          <button
+            type="submit"
+            style={{
+              padding: '6px 14px',
+              backgroundColor: '#0f172a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '13px',
+            }}
+          >
+            상세 & AI 요약 조회
+          </button>
+        </form>
+        {directIssueError && (
+          <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#b91c1c' }}>
+            ⚠️ {directIssueError}
+          </p>
+        )}
+      </div>
 
       {searchError && (
         <div
