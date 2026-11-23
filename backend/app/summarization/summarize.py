@@ -19,9 +19,13 @@ SECTION_NAMES = (
     "unknowns",
 )
 
+MAX_ISSUE_BODY_CHARS = 6000
+MAX_PROMPT_COMMENTS = 10
+MAX_COMMENT_BODY_CHARS = 800
+
 
 class SummaryGenerationError(Exception):
-    """Ollama Cloud 요약 요청 또는 응답 처리 실패."""
+    """Ollama 요약 실패."""
 
 
 def build_sources(issue: IssueInput) -> dict[str, dict[str, object]]:
@@ -45,9 +49,28 @@ def build_sources(issue: IssueInput) -> dict[str, dict[str, object]]:
     return sources
 
 
+def prepare_prompt_data(issue: IssueInput) -> dict:
+    issue_data = issue.model_dump(mode="json")
+
+    body = issue_data["body"] or ""
+    if len(body) > MAX_ISSUE_BODY_CHARS:
+        issue_data["body"] = body[:MAX_ISSUE_BODY_CHARS] + "\n...[내용 일부 생략]"
+
+    comments = issue_data["comments"][-MAX_PROMPT_COMMENTS:]
+    for comment in comments:
+        comment_body = comment["body"] or ""
+        if len(comment_body) > MAX_COMMENT_BODY_CHARS:
+            comment["body"] = (
+                comment_body[:MAX_COMMENT_BODY_CHARS] + "\n...[내용 일부 생략]"
+            )
+
+    issue_data["comments"] = comments
+    return issue_data
+
+
 def build_prompt(issue: IssueInput) -> str:
     schema = IssueSummary.model_json_schema()
-    issue_data = issue.model_dump(mode="json")
+    issue_data = prepare_prompt_data(issue)
 
     return f"""
 You summarize GitHub Issues using only the supplied issue and comment data.
@@ -64,6 +87,7 @@ Do not include comment_id for issue_body evidence.
 If a section cannot be supported by the supplied data, use null for text and [] for evidence.
 Set status to "completed" only when the summary has sufficient supporting evidence;
 otherwise set it to "insufficient_evidence".
+Only the latest {MAX_PROMPT_COMMENTS} comments may be included. Long text may be truncated.
 
 JSON Schema:
 {json.dumps(schema, ensure_ascii=False, indent=2)}
@@ -73,7 +97,7 @@ Issue data:
 """
 
 
-def _parse_json_response(raw_response: str) -> dict:
+def parse_json_response(raw_response: str) -> dict:
     content = raw_response.strip()
 
     if content.startswith("```"):
@@ -138,25 +162,17 @@ def summarize_issue(issue: IssueInput) -> IssueSummary:
         prompt = build_prompt(issue)
         raw_response = client.chat(prompt)
 
-        result_data = _parse_json_response(raw_response)
+        result_data = parse_json_response(raw_response)
         result = IssueSummary.model_validate(result_data)
 
         return validate_summary_evidence(issue, result)
 
     except SummaryGenerationError:
         raise
-
-    except (
-        httpx.HTTPError,
-        ValidationError,
-        TypeError,
-        ValueError,
-        KeyError,
-    ) as exc:
+    except (httpx.HTTPError, ValidationError, TypeError, ValueError, KeyError) as exc:
         raise SummaryGenerationError(
-            "Ollama Cloud 요약 요청 또는 응답 처리에 실패했습니다."
+            "Ollama 요약에 실패했습니다."
         ) from exc
-
     finally:
         if client is not None:
             client.close()

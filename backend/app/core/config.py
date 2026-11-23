@@ -73,7 +73,7 @@ class Settings:
     per_page: int
     max_issues: int
     max_comments: int
-    ollama_api_key: str | None
+    ollama_base_url: str
     ollama_model: str
 
     def github_headers(self) -> dict[str, str]:
@@ -104,6 +104,12 @@ def get_settings() -> Settings:
         per_page=min(_int_env("GITHUB_PER_PAGE", 100), 100),
         max_issues=_int_env("COLLECTION_MAX_ISSUES", 300),
         max_comments=_int_env("COLLECTION_MAX_COMMENTS", 300),
-        ollama_api_key=os.getenv("OLLAMA_API_KEY") or None,
-        ollama_model=os.getenv("OLLAMA_MODEL", "gpt-oss:20b").strip() or "gpt-oss:20b",
+        ollama_base_url=(
+            os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").strip().rstrip("/")
+            or "http://127.0.0.1:11434"
+        ),
+        ollama_model=(
+            os.getenv("OLLAMA_MODEL", "qwen3:4b-q4_K_M").strip()
+            or "qwen3:4b-q4_K_M"
+        ),
     )

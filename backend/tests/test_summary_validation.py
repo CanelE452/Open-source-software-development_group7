@@ -1,13 +1,15 @@
-import sys
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
+import httpx
 from pydantic import ValidationError
 
-BACKEND_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(BACKEND_DIR))
-
-from app.schemas.summarization_schema import Evidence, IssueInput, IssueSummary
-from app.summarization.summarize import summarize
+from backend.app.collection.issue_detail import collect_issue_detail
+from backend.app.collection.repository import parse_repository
+from backend.app.core.config import get_settings
+from backend.app.integrations.github import GitHubClient
+from backend.app.schemas.summarization_schema import Evidence, IssueInput, IssueSummary, IssueComment
+from backend.app.summarization.summarize import summarize_issue
 
 SECTION_NAMES = (
     "problem",
@@ -175,9 +177,48 @@ def write_report(issue: IssueInput, summary: IssueSummary, mismatches: list[dict
     report_path.write_text("\n".join(lines), encoding="utf-8")
     return report_path
 
+def load_issue(url: str) -> IssueInput:
+    parsed = urlparse(url)
+    parts = [part for part in parsed.path.split("/") if part]
+
+    if parsed.netloc not in ("github.com", "www.github.com") or len(parts) != 4:
+        raise ValueError("GitHub Issue URL 형식이 올바르지 않습니다.")
+    if parts[2] != "issues" or not parts[3].isdigit():
+        raise ValueError("GitHub Issue URL 형식이 올바르지 않습니다.")
+
+    owner, repo = parse_repository(f"{parts[0]}/{parts[1]}")
+    issue_number = int(parts[3])
+    settings = get_settings()
+    http_client = httpx.Client(
+        base_url=settings.github_api_base,
+        headers=settings.github_headers(),
+        timeout=settings.request_timeout,
+    )
+    client = GitHubClient(settings, client=http_client)
+
+    try:
+        detail = collect_issue_detail(
+            client, owner, repo, issue_number, settings=settings
+        )
+    finally:
+        client.close()
+
+    return IssueInput(
+        number=detail.number,
+        title=detail.title,
+        body=detail.body,
+        html_url=detail.html_url,
+        comments=[
+            IssueComment(id=comment.id, html_url=comment.html_url, body=comment.body)
+            for comment in detail.comments
+        ],
+    )
+
+
 def main():
     url = input("Input GitHub Issue URL: ").strip()
-    issue, summary = summarize(url)
+    issue = load_issue(url)
+    summary = summarize_issue(issue)
     print("\n요약 완료")
     
     mismatches = collect_mismatches(summary, issue)

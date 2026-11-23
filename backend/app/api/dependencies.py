@@ -13,7 +13,6 @@ from backend.app.api.backends import (
     SearchBackend,
     SummaryBackend,
     UnavailableSearchBackend,
-    UnavailableSummaryBackend,
 )
 from backend.app.api.jobs import GitHubClientFactory, JobStore
 from backend.app.api.summarization import OllamaSummaryBackend
@@ -49,10 +48,7 @@ def init_app_state(app: FastAPI, settings: Settings | None = None) -> None:
     if not hasattr(state, "search_backend"):
         state.search_backend = UnavailableSearchBackend()
     if not hasattr(state, "summary_backend"):
-            if state.settings.ollama_api_key:
-                state.summary_backend = OllamaSummaryBackend()
-            else:
-                state.summary_backend = UnavailableSummaryBackend()
+        state.summary_backend = OllamaSummaryBackend()
 
 
 def get_settings_dep(request: Request) -> Settings:
