@@ -1,13 +1,30 @@
+// frontend/src/App.tsx
 import { useState } from 'react';
 import { SearchSection } from './features/search/SearchSection';
 import { IssueDetailSection } from './features/issue-detail/IssueDetailSection';
 import { SearchIssueItem } from './types/api';
 
+function extractOwnerRepo(input: string): string {
+  const trimmed = input.trim().replace(/\/+$/, '');
+  const match = trimmed.match(/github\.com\/([^/]+\/[^/]+)/i);
+  return match ? match[1].replace(/\.git$/, '') : trimmed;
+}
+
 export default function App() {
   const [selectedIssue, setSelectedIssue] = useState<SearchIssueItem | null>(null);
   const [currentRepository, setCurrentRepository] = useState<string>('huggingface/transformers');
 
-  const handleSelectIssue = (issue: SearchIssueItem) => {
+  const handleRepositoryChange = (repo: string) => {
+    const normalized = extractOwnerRepo(repo);
+    if (normalized) {
+      setCurrentRepository(normalized);
+    }
+  };
+
+  const handleSelectIssue = (issue: SearchIssueItem, repository?: string) => {
+    if (repository) {
+      handleRepositoryChange(repository);
+    }
     setSelectedIssue(issue);
   };
 
@@ -22,7 +39,11 @@ export default function App() {
 
       <main>
         {!selectedIssue ? (
-          <SearchSection onSelectIssue={handleSelectIssue} />
+          <SearchSection
+            defaultRepository={currentRepository}
+            onRepositoryChange={handleRepositoryChange}
+            onSelectIssue={handleSelectIssue}
+          />
         ) : (
           <IssueDetailSection
             selectedIssue={selectedIssue}

@@ -1,3 +1,4 @@
+// frontend/src/features/search/JobProgress.tsx
 import React from 'react';
 import { JobStatusResponse } from '../../types/api';
 
@@ -27,6 +28,12 @@ export const JobProgress: React.FC<JobProgressProps> = ({ jobStatus }) => {
     }
   };
 
+  const isPartial = state === 'partial' || Boolean(collection?.partial_collection);
+  const partialNotesText =
+    collection?.notes && collection.notes.length > 0
+      ? collection.notes.join(', ')
+      : '부분 수집 모드';
+
   return (
     <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '6px', marginBottom: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -37,12 +44,18 @@ export const JobProgress: React.FC<JobProgressProps> = ({ jobStatus }) => {
       <div style={{ fontSize: '14px', color: '#475569' }}>
         <span>수집된 Issue: {progress.collected_issues}개</span> |{' '}
         <span>수집된 댓글: {progress.collected_comments}개</span> |{' '}
-        <span>인덱싱 완료: {progress.indexed}개</span>
+        <span>인덱싱: {progress.indexed ? '완료' : '미완료'}</span>
       </div>
 
-      {collection?.partial_collection && (
+      {collection?.scope && (
+        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+          스냅샷: <code>{collection.snapshot_id}</code> · 수집 범위: 최대 {collection.scope.max_issues}건 (PR {collection.scope.pull_requests_excluded}건 제외)
+        </div>
+      )}
+
+      {isPartial && (
         <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#b45309' }}>
-          💡 제한사항으로 인해 저장소의 일부 Issue만 수집되었습니다. ({collection.notes || '부분 수집 모드'})
+          💡 제한사항으로 인해 저장소의 일부 Issue만 수집되었습니다. ({partialNotesText})
         </p>
       )}
 
