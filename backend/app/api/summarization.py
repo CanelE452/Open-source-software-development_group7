@@ -1,3 +1,5 @@
+import logging
+
 from backend.app.api.backends import SummaryBackend
 from backend.app.schemas.issues import IssueDetailResponse
 from backend.app.schemas.summary import (
@@ -8,6 +10,9 @@ from backend.app.schemas.summary import (
 )
 from backend.app.schemas.summarization_schema import IssueComment, IssueInput
 from backend.app.summarization.summarize import SummaryGenerationError, summarize_issue
+
+
+logger = logging.getLogger(__name__)
 
 
 class OllamaSummaryBackend(SummaryBackend):
@@ -32,6 +37,7 @@ class OllamaSummaryBackend(SummaryBackend):
         try:
             result = summarize_issue(summary_input)
         except SummaryGenerationError:
+            logger.exception("Ollama 요약 생성에 실패했습니다.")
             return SummaryResponse(
                 repository=issue.repository,
                 number=issue.number,
