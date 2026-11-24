@@ -1,4 +1,4 @@
-import json, httpx, pytest
+import os, json, httpx, pytest
 from fastapi import FastAPI
 
 from backend.app.api import summarization as summary_backend_module
@@ -262,7 +262,10 @@ def test_app_registers_local_ollama_backend_and_preserves_override() -> None:
         UnavailableSummaryBackend,
     )
 
-
+@pytest.mark.skipif(
+    os.getenv("LIVE_OLLAMA_TEST") != "1",
+    reason="Set LIVE_OLLAMA_TEST=1 to run the local Ollama integration test.",
+)
 def test_live_local_ollama_summary() -> None:
     try:
         response = httpx.get(
