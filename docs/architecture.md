@@ -54,7 +54,7 @@ API 라우터는 HTTP 입력·출력과 오류를 담당한다. `collection/`은
 | A5 | `getIssueDetail` | `features/issue-detail/IssueDetailSection.tsx` `fetchDetail` | `features/issue-detail/IssueBodyAndComments.tsx` | `IssueDetailResponse`·`IssueComment` |
 | A6 | `getIssueSummary` | `IssueDetailSection.tsx` `fetchSummary` | `features/issue-detail/SummaryDashboard.tsx` | `IssueSummaryResponse`·`SummaryField`·`EvidenceItem` |
 
-오류 응답은 `api/issueApi.ts` `handleResponse` 한 곳에서 처리한다. 응답 형식을 바꾸면 `api/fixtures/mockData.ts`의 `mockSearchResponse`·`mockIssueDetailResponse`·`mockIssueSummaryResponse`도 함께 고친다. 검색에 쓴 저장소는 `App.tsx`의 `currentRepository`로 상세 화면에 전달한다.
+오류 응답은 `api/issueApi.ts` `handleResponse` 한 곳에서 처리하며, `400`·`503` 등 API 오류 시 Mock 데이터로 자동 대체하지 않고 오류 안내 배너를 표시한다. Mock 데이터(`api/fixtures/mockData.ts`)는 `VITE_USE_MOCK=true`일 때만 사용하며, 응답 형식을 바꾸면 `mockSearchResponse`·`mockIssueDetailResponse`·`mockIssueSummaryResponse`도 함께 고친다. 분석·검색·Issue 번호 직접 조회(`SearchSection.tsx` `handleDirectIssueSubmit`)에 쓴 저장소는 `App.tsx`의 `currentRepository`로 상세 화면에 전달한다.
 
 ### 테스트
 
@@ -67,7 +67,7 @@ API 라우터는 HTTP 입력·출력과 오류를 담당한다. `collection/`은
 | A5 | `test_api.py` `test_issue_detail_endpoint`·`test_issue_detail_not_found`, `test_collection.py` `test_collect_issue_detail_*` |
 | A6 | `test_api.py` `test_summary_without_backend_returns_503`·`test_summary_with_backend_returns_result` |
 
-프런트엔드 테스트는 아직 없고 `typecheck`와 `build`로만 확인한다.
+프런트엔드는 별도 테스트 프레임워크 없이 `npm --prefix frontend run typecheck`·`build` 정적 검증과 [프런트엔드 README](../frontend/README.md)의 E2E·예외 상태(`400`·`503`·부분 수집·근거 부족) 수동 확인 절차로 검증한다.
 
 ### 스키마 대응
 
@@ -88,7 +88,7 @@ API 라우터는 HTTP 입력·출력과 오류를 담당한다. `collection/`은
 
 - 수집(`collection/`)과 Issue 상세 API는 GitHub와 연동해 동작한다.
 
-- 검색(`search/`)과 요약(`summarization/`)은 `api/backends.py`의 연결점에 아직 주입하지 않아 `POST /api/search`와 요약 API는 503을 반환하고, 화면은 이때 Mock 데이터를 보여준다.
+- 검색(`search/`)과 요약(`summarization/`)은 `api/backends.py`의 연결점에 아직 주입하지 않아 `POST /api/search`와 요약 API는 503을 반환한다. 화면은 이때 Mock 데이터 대신 503 오류 안내 배너를 표시하며, 검색 미연결 상태에서도 Issue 번호 직접 조회로 상세·요약 화면을 확인할 수 있다. (Mock 화면 확인은 `VITE_USE_MOCK=true`로 전환한다.)
 
 - 분석 작업 상태는 메모리에만 있고 수집 결과는 아직 `storage/`에 저장하지 않는다.
 
