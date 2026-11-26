@@ -7,6 +7,8 @@ import {
 
 // 1. Mock 검색 결과
 export const mockSearchResponse: SearchIssuesResponse = {
+  repository: 'huggingface/transformers',
+  method: 'hybrid',
   results: [
     {
       number: 47752,
@@ -28,17 +30,27 @@ export const mockSearchResponse: SearchIssuesResponse = {
   snapshot_id: 'snap-20261029-01',
   collected_at: '2026-10-29T12:00:00Z',
   partial_collection: false,
-  scope: 'full',
+  scope: {
+    state: 'all',
+    per_page: 100,
+    max_issues: 300,
+    pages_fetched: 1,
+    issue_count: 42,
+    pull_requests_excluded: 8,
+  },
 };
 
 // 2. Mock 이슈 상세 데이터
 export const mockIssueDetailResponse: IssueDetailResponse = {
+  repository: 'huggingface/transformers',
   number: 47752,
   title: 'incorrect precedence of generation_config values in pipeline',
   html_url: 'https://github.com/huggingface/transformers/issues/47752',
   state: 'open',
   body: 'When calling pipeline("text-generation"), setting max_new_tokens in generation_config gets overridden by default parameters.',
   author: 'dev-user',
+  created_at: '2026-10-20T09:00:00Z',
+  updated_at: '2026-10-21T14:20:00Z',
   comments: [
     {
       id: 1001,
@@ -56,11 +68,16 @@ export const mockIssueDetailResponse: IssueDetailResponse = {
     },
   ],
   comment_count: 2,
+  collected_at: '2026-10-29T12:00:00Z',
   partial_collection: false,
+  notes: [],
 };
 
 // 3. Mock 이슈 AI 요약 데이터
 export const mockIssueSummaryResponse: IssueSummaryResponse = {
+  repository: 'huggingface/transformers',
+  number: 47752,
+  html_url: 'https://github.com/huggingface/transformers/issues/47752',
   problem: {
     text: '파이프라인 호출 시 generation_config 내부의 생성 길이 설정이 기본 파라미터보다 낮은 우선순위를 가져 반영되지 않는 현상이 발생합니다.',
     evidence: [
@@ -77,7 +94,7 @@ export const mockIssueSummaryResponse: IssueSummaryResponse = {
       {
         url: 'https://github.com/huggingface/transformers/issues/47752#issuecomment-1001',
         excerpt: 'inside generation_config is ignored if kwargs are passed',
-        source_type: 'issue_comment',
+        source_type: 'comment',
         comment_id: 1001,
       },
     ],
@@ -88,7 +105,7 @@ export const mockIssueSummaryResponse: IssueSummaryResponse = {
       {
         url: 'https://github.com/huggingface/transformers/issues/47752#issuecomment-1002',
         excerpt: 'Pass max_new_tokens directly as a keyword argument to pipeline()',
-        source_type: 'issue_comment',
+        source_type: 'comment',
         comment_id: 1002,
       },
     ],
