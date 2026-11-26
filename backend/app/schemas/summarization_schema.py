@@ -42,7 +42,7 @@ class Evidence(BaseModel):
         excerpt = normalize_text(self.excerpt)
         original = normalize_text(source["text"])
 
-        if excerpt not in original:
+        if not excerpt or excerpt not in original:
             raise ValueError("excerpt_not_found")
 
         return self
