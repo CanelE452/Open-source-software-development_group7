@@ -126,7 +126,7 @@ export interface IssueDetailResponse {
 export interface EvidenceItem {
   url: string;
   excerpt: string;
-  source_type: 'issue_body' | 'comment' | string;
+  source_type: 'issue_body' | 'comment'; // [수정] string 제거
   comment_id?: number;
 }
 
