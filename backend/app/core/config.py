@@ -74,7 +74,7 @@ class Settings:
     max_issues: int
     max_comments: int
     ollama_base_url: str
-    ollama_model: str | None
+    ollama_model: str
 
     def github_headers(self) -> dict[str, str]:
         """GitHub REST API 요청 공통 헤더. 토큰이 있으면 인증을 추가한다."""
@@ -104,6 +104,12 @@ def get_settings() -> Settings:
         per_page=min(_int_env("GITHUB_PER_PAGE", 100), 100),
         max_issues=_int_env("COLLECTION_MAX_ISSUES", 300),
         max_comments=_int_env("COLLECTION_MAX_COMMENTS", 300),
-        ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
-        ollama_model=os.getenv("OLLAMA_MODEL") or None,
+        ollama_base_url=(
+            os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").strip().rstrip("/")
+            or "http://127.0.0.1:11434"
+        ),
+        ollama_model=(
+            os.getenv("OLLAMA_MODEL", "qwen3:4b-q4_K_M").strip()
+            or "qwen3:4b-q4_K_M"
+        ),
     )

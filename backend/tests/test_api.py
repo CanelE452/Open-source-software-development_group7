@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from backend.app.main import create_app
 from backend.app.schemas.search import SearchResponse, SearchResultItem
 from backend.app.schemas.summary import SummaryResponse, SummaryStatus
+from backend.app.api.backends import UnavailableSummaryBackend
 from backend.tests.conftest import comment, factory_for, issue, make_settings, pull_request
 
 
@@ -166,7 +167,10 @@ def test_issue_detail_not_found():
 
 def test_summary_without_backend_returns_503():
     handler = _detail_handler(issue(1, comments=0), {})
-    app = build_app(handler)
+    app = build_app(
+        handler,
+        summary=UnavailableSummaryBackend(),
+    )
     with TestClient(app) as client:
         response = client.post("/api/repositories/o/r/issues/1/summary")
     assert response.status_code == 503
